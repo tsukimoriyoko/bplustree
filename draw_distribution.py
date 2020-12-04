@@ -48,11 +48,11 @@ l3 = plt.plot(m[3], l[3], color='yellow')
 l4 = plt.plot(m[4], l[4], color='orange')
 l5 = plt.plot(m[5], l[5], color='red')
 
-plt.xlabel('access radio')
-plt.ylabel('tree node radio')
+plt.xlabel('tree node radio')
+plt.ylabel('access radio')
 
 plt.legend(handles=[l1, l2, l3, l4, l5],
            labels=['tree level 1', 'tree level 2', 'tree level 3', 'tree level 4', 'tree level 5'])
 
-plt.savefig('1.png')
-# plt.show()
+# plt.savefig('1.png')
+plt.show()

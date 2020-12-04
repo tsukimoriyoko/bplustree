@@ -101,7 +101,7 @@ int main() {
         bplus_tree_put(tree, x, x);
     }
 
-    printf("%d\n", tree->level);
+    printf("%d\n", tree->level + 1);
 
     freopen("/home/tsukimori/bplustree/c_1M5_16_run", "r", stdin);
     // freopen("output_tmp", "w", stdout);
