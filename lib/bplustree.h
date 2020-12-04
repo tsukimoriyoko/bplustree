@@ -88,6 +88,8 @@ struct bplus_non_leaf {
         int children;
         int key[BPLUS_MAX_ORDER - 1];
         struct bplus_node *sub_ptr[BPLUS_MAX_ORDER];
+
+        int frequency[BPLUS_MAX_ORDER - 1];
 };
 
 struct bplus_leaf {
@@ -98,6 +100,8 @@ struct bplus_leaf {
         int entries;
         int key[BPLUS_MAX_ENTRIES];
         int data[BPLUS_MAX_ENTRIES];
+
+        int frequency[BPLUS_MAX_ENTRIES];
 };
 
 struct bplus_tree {
