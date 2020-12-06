@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/bplustree_frequency.dir/test_frequency.cpp.o  -o ../bin/bplustree_frequency -Wl,-rpath,/home/tsukimori/bplustree/build/lib ../lib/libbplustree.so.1.0 

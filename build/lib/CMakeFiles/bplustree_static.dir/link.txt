@@ -1,2 +1,0 @@
-/usr/bin/ar qc libbplustree.a  CMakeFiles/bplustree_static.dir/bplustree.c.o
-/usr/bin/ranlib libbplustree.a
