@@ -1,0 +1,7 @@
+build/
+result/
+data/
+cmake/
+.vscode/
+
+test.cpp
