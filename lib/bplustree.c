@@ -97,20 +97,19 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
         if (is_leaf(node)) {
             struct bplus_leaf *ln = (struct bplus_leaf *)node;
             // i = key_binary_search(ln->key, ln->entries, key);
-            // printf("%d\n", ln->last_searched);
-            if (ln->key[ln->last_searched] == key) {
-                tree->r++;
-                return ln->data[ln->last_searched];
+            if (ln->last_key == key) {
+                // tree->r++;
+                return ln->last_data;
             } else {
+                ln->last_key = key;
                 i = key_linear_search(ln->key, ln->entries, key);
-                ln->last_searched = i;
+                ln->last_data = i >= 0 ? ln->data[i] : 0;
+                return ln->last_data;
             }
-            ret = i >= 0 ? ln->data[i] : 0;
 #ifdef _FREQUENCY_STATISTIC
             if (i >= 0)
                 ln->frequency[i]++;
 #endif
-            break;
         } else {
             struct bplus_non_leaf *nln = (struct bplus_non_leaf *)node;
 
@@ -124,7 +123,6 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 #endif
         }
     }
-    return ret;
 }
 
 static int non_leaf_insert(struct bplus_tree *tree, struct bplus_non_leaf *node,
