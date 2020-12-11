@@ -117,18 +117,11 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
             // i = key_binary_search(nln->key, nln->children - 1, key);
             i = key_linear_search(nln->key, nln->children - 1, key);
 
-            if (i >= 0) {
-                node = nln->sub_ptr[i + 1];
+            i = i >= 0 ? i + 1 : -i - 1;
+            node = nln->sub_ptr[i];
 #ifdef _FREQUENCY_STATISTIC
-                nln->frequency[i + 1]++;
+            nln->frequency[i]++;
 #endif
-            } else {
-                i = -i - 1;
-                node = nln->sub_ptr[i];
-#ifdef _FREQUENCY_STATISTIC
-                nln->frequency[i]++;
-#endif
-            }
         }
     }
     return ret;
