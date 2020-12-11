@@ -2,7 +2,7 @@ set(LIB_BPLUSTREE_SRC bplustree.c)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 add_definitions(-D_BPLUS_TREE_DEBUG)
-add_definitions(-D_FREQUENCY_STATISTIC)
+# add_definitions(-D_FREQUENCY_STATISTIC)
 
 add_library(${LIB_BPLUSTREE_NAME} SHARED ${LIB_BPLUSTREE_SRC})
 set_target_properties(${LIB_BPLUSTREE_NAME} PROPERTIES CLEAN_DIRECT_OUTPUT 1)

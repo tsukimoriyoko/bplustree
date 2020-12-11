@@ -34,31 +34,26 @@ static key_t key_binary_search(key_t *arr, int len, key_t target)
     {
         int mid = low + (high - low) / 2;
         if (target > arr[mid])
-        {
             low = mid;
-        }
         else
-        {
             high = mid;
-        }
     }
     if (high >= len || arr[high] != target)
-    {
         return -high - 1;
-    }
     else
-    {
         return high;
-    }
 }
 
 static key_t key_linear_search(key_t *arr, int len, key_t target)
 {
-    for (int i = 0; i < len; i++)
-    {
-        if (target == arr[i])
+    for (int i = 0; i < len; i++) {
+        if (target == arr[i]) {
             return i;
+        } else if (arr[i] > target) {
+            return -i - 1;
+        }
     }
+    return -len - 1;
 }
 
 static struct bplus_non_leaf *non_leaf_new(void)
@@ -93,42 +88,43 @@ static void leaf_delete(struct bplus_leaf *node)
     free(node);
 }
 
+
 static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 {
     int i, ret = -1;
     struct bplus_node *node = tree->root;
-    while (node != NULL)
-    {
-        if (is_leaf(node))
-        {
+    while (node != NULL) {
+        if (is_leaf(node)) {
             struct bplus_leaf *ln = (struct bplus_leaf *)node;
-            i = key_binary_search(ln->key, ln->entries, key);
+            // i = key_binary_search(ln->key, ln->entries, key);
+            // printf("%d\n", ln->last_searched);
+            if (ln->key[ln->last_searched] == key) {
+                tree->r++;
+                return ln->data[ln->last_searched];
+            } else {
+                i = key_linear_search(ln->key, ln->entries, key);
+                ln->last_searched = i;
+            }
             ret = i >= 0 ? ln->data[i] : 0;
-            
 #ifdef _FREQUENCY_STATISTIC
             if (i >= 0)
                 ln->frequency[i]++;
 #endif
-            
             break;
-        }
-        else
-        {
+        } else {
             struct bplus_non_leaf *nln = (struct bplus_non_leaf *)node;
-            i = key_binary_search(nln->key, nln->children - 1, key);
-            if (i >= 0)
-            {
-                node = nln->sub_ptr[i + 1];
 
+            // i = key_binary_search(nln->key, nln->children - 1, key);
+            i = key_linear_search(nln->key, nln->children - 1, key);
+
+            if (i >= 0) {
+                node = nln->sub_ptr[i + 1];
 #ifdef _FREQUENCY_STATISTIC
                 nln->frequency[i + 1]++;
 #endif
-            }
-            else
-            {
+            } else {
                 i = -i - 1;
                 node = nln->sub_ptr[i];
-
 #ifdef _FREQUENCY_STATISTIC
                 nln->frequency[i]++;
 #endif
@@ -1071,7 +1067,7 @@ int bplus_tree_get_range(struct bplus_tree *tree, key_t key1, key_t key2)
     return data;
 }
 
-// #ifdef _BPLUS_TREE_DEBUG
+#ifdef _BPLUS_TREE_DEBUG
 struct node_backlog
 {
     /* Node backlogged */
@@ -1129,9 +1125,11 @@ static void key_print(struct bplus_node *node)
         //     printf(" %d", leaf->key[i]);
         // }
 
+#ifdef _FREQUENCY_STATISTIC
         // printf(" freq:");
         for (i = 0; i < leaf->entries; i++)
             printf(" %d", leaf->frequency[i]);
+#endif
     }
     else
     {
@@ -1142,9 +1140,11 @@ static void key_print(struct bplus_node *node)
         //     printf(" %d", non_leaf->key[i]);
         // }
 
+#ifdef _FREQUENCY_STATISTIC
         // printf(" freq:");
         for (i = 0; i < non_leaf->children - 1; i++)
             printf(" %d", non_leaf->frequency[i]);
+#endif
     }
     printf("\n");
 }
@@ -1222,4 +1222,4 @@ void bplus_tree_dump(struct bplus_tree *tree)
         }
     }
 }
-// #endif
+#endif

@@ -100,6 +100,7 @@ struct bplus_leaf {
         struct bplus_non_leaf *parent;
         struct list_head link;
         int entries;
+        int last_searched;
         int key[BPLUS_MAX_ENTRIES];
         int data[BPLUS_MAX_ENTRIES];
 
@@ -112,6 +113,7 @@ struct bplus_tree {
         int order;
         int entries;
         int level;
+        int r;       // 'cache' hit count
         struct bplus_node *root;
         struct list_head list[BPLUS_MAX_LEVEL];
 };

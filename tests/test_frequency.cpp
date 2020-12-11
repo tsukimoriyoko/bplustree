@@ -30,6 +30,8 @@ static inline int is_leaf(struct bplus_node *node) {
     return node->type == BPLUS_TREE_LEAF;
 }
 
+#ifdef _FREQUENCY_STATISTIC
+
 queue<bplus_node*> q_node;
 queue<int> q_level;
 
@@ -78,6 +80,7 @@ void dump(bplus_tree *tree) {
     }
 }
 
+#endif
 
 struct bplus_tree_config {
     int order;
@@ -99,8 +102,9 @@ int main() {
         exit(-1);
     }
 
-    // freopen("/home/tsukimori/bplustree/data/c_1M5_16_load", "r", stdin);
     int x, cnt = 0;
+
+    // freopen("/home/tsukimori/bplustree/data/c_1M5_16_load", "r", stdin);
     // for (int i = 0; i < FILE_SIZE; i++) {
     //     scanf("insert user0000000%d\n", &x);
     //     bplus_tree_put(tree, x, x);
@@ -109,7 +113,11 @@ int main() {
     for (int i = 0; i < FILE_SIZE; i++) {
         input.push_back(i);
     }
+
+    // build the tree randomly
+    srand(unsigned(time(0)));
     random_shuffle(input.begin(), input.end());
+
     for (int i = 0; i < FILE_SIZE; i++) {
         bplus_tree_put(tree, input[i], input[i]);
     }
@@ -119,7 +127,8 @@ int main() {
     freopen("/home/tsukimori/bplustree/data/c_1M5_16_run", "r", stdin);
     // freopen("output_tmp", "w", stdout);
 
-    for (int i = 0; i < FILE_SIZE; i++) {
+    for (int i = 0; i < FILE_SIZE; i++)
+    {
         scanf("read user0000000%d\n", &x);
         run.push_back(x);
     }
@@ -136,6 +145,8 @@ int main() {
     timeuse = 1000000 * (endtime.tv_sec - starttime.tv_sec) + endtime.tv_usec - starttime.tv_usec;
 
     printf("%lf ms\n", timeuse / 1000);
+
+    printf("hit count: %d\n", tree->r);
 
     freopen("output", "w", stdout);
     // dump(tree);
