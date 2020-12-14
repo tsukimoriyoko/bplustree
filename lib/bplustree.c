@@ -88,6 +88,11 @@ static void leaf_delete(struct bplus_leaf *node)
     free(node);
 }
 
+static inline void swap(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
 
 static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 {
@@ -100,33 +105,25 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 
             if (tree->cache_off) {
                 for (j = 0; j < CACHE_NUM; j++)
-                    if (ln->last_key[j] == key)
+                    if (ln->last_key[j] == key) {
+                        tree->r++;
                         return ln->last_data[j];
+                    }
                 i = key_linear_search(ln->key, ln->entries, key);
                 return ln->data[i];
             }
 
             for (j = 0; j < CACHE_NUM; j++) {
                 if (ln->last_key[j] == key) {
-                    ln->clock |= 1u << j;
-                    // tree->r++;
-                    return ln->last_data[j];
+                    swap(&ln->last_key[0], &ln->last_key[j]);
+                    swap(&ln->last_data[0], &ln->last_data[j]);
+                    tree->r++;
+                    return ln->last_data[0];
                 }
             }
             i = key_linear_search(ln->key, ln->entries, key);
-
-            for (j = ln->clock_ptr; j < ln->clock_ptr + CACHE_NUM; j++) {
-                k = j % CACHE_NUM;
-                if (k < CACHE_NUM - 1 && ln->clock >> k & 1) {
-                    ln->clock ^= 1u << k;
-                } else {
-                    ln->clock |= 1u << k;
-                    ln->last_key[k] = key;
-                    // ln->last_data[k] = i >= 0 ? ln->data[i] : 0;
-                    ln->clock_ptr++;
-                    return ln->last_data[k] = ln->data[i];
-                }
-            }
+            ln->last_key[CACHE_NUM - 1] = key;
+            return ln->last_data[CACHE_NUM - 1] = ln->data[i];
 
 #ifdef _FREQUENCY_STATISTIC
             if (i >= 0)
