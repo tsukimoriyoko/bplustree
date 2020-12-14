@@ -136,19 +136,28 @@ int main() {
     struct timeval starttime, endtime;
     double timeuse;
     gettimeofday(&starttime, NULL);
-
     for (int i = 0; i < FILE_SIZE; i++) {
         bplus_tree_get(tree, run[i]);
-        // printf("%d\n", bplus_tree_get(tree, x));
     }
     gettimeofday(&endtime, NULL);
     timeuse = 1000000 * (endtime.tv_sec - starttime.tv_sec) + endtime.tv_usec - starttime.tv_usec;
-
     printf("%lf ms\n", timeuse / 1000);
 
-    printf("hit count: %d\n", tree->r);
+    // printf("hit count: %d\n", tree->r);
 
-    freopen("output", "w", stdout);
+    // tree->r = 0;
+    tree->cache_off = 1;
+    gettimeofday(&starttime, NULL);
+    for (int i = 0; i < FILE_SIZE; i++) {
+        bplus_tree_get(tree, run[i]);
+    }
+    gettimeofday(&endtime, NULL);
+    timeuse = 1000000 * (endtime.tv_sec - starttime.tv_sec) + endtime.tv_usec - starttime.tv_usec;
+    printf("%lf ms\n", timeuse / 1000);
+
+    // printf("hit count: %d\n", tree->r);
+
+    // freopen("output", "w", stdout);
     // dump(tree);
     // bplus_tree_dump(tree);
 

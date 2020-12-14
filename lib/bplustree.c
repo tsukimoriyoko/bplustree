@@ -97,22 +97,33 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
         if (is_leaf(node)) {
             struct bplus_leaf *ln = (struct bplus_leaf *)node;
             // i = key_binary_search(ln->key, ln->entries, key);
+
+            if (tree->cache_off) {
+                for (j = 0; j < CACHE_NUM; j++)
+                    if (ln->last_key[j] == key)
+                        return ln->last_data[j];
+                i = key_linear_search(ln->key, ln->entries, key);
+                return ln->data[i];
+            }
+
             for (j = 0; j < CACHE_NUM; j++) {
                 if (ln->last_key[j] == key) {
-                    ln->clock |= 1 << j;
-                    tree->r++;
+                    ln->clock |= 1u << j;
+                    // tree->r++;
                     return ln->last_data[j];
                 }
             }
             i = key_linear_search(ln->key, ln->entries, key);
+
             for (j = ln->clock_ptr; j < ln->clock_ptr + CACHE_NUM; j++) {
                 k = j % CACHE_NUM;
                 if (k < CACHE_NUM - 1 && ln->clock >> k & 1) {
-                    ln->clock ^= 1 << k;
+                    ln->clock ^= 1u << k;
                 } else {
-                    ln->clock |= 1 << k;
+                    ln->clock |= 1u << k;
                     ln->last_key[k] = key;
                     // ln->last_data[k] = i >= 0 ? ln->data[i] : 0;
+                    ln->clock_ptr++;
                     return ln->last_data[k] = ln->data[i];
                 }
             }

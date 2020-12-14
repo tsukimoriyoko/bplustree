@@ -102,7 +102,7 @@ struct bplus_leaf {
         struct list_head link;
         int entries;
         int last_key[CACHE_NUM], last_data[CACHE_NUM];
-        char clock;
+        unsigned int clock;
         int clock_ptr;
         int key[BPLUS_MAX_ENTRIES];
         int data[BPLUS_MAX_ENTRIES];
@@ -116,7 +116,8 @@ struct bplus_tree {
         int order;
         int entries;
         int level;
-        int r;       // 'cache' hit count
+        // int r;       // 'cache' hit count
+        char cache_off;
         struct bplus_node *root;
         struct list_head list[BPLUS_MAX_LEVEL];
 };
