@@ -146,7 +146,7 @@ int main() {
 
     printf("%lf ms\n", timeuse / 1000);
 
-    // printf("hit count: %d\n", tree->r);
+    printf("hit count: %d\n", tree->r);
 
     freopen("output", "w", stdout);
     // dump(tree);
