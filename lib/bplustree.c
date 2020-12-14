@@ -115,10 +115,12 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 
             for (j = 0; j < CACHE_NUM; j++) {
                 if (ln->last_key[j] == key) {
-                    swap(&ln->last_key[0], &ln->last_key[j]);
-                    swap(&ln->last_data[0], &ln->last_data[j]);
+                    if (j != 0) {
+                        swap(&ln->last_key[j - 1], &ln->last_key[j]);
+                        swap(&ln->last_data[j - 1], &ln->last_data[j]);
+                    }
                     tree->r++;
-                    return ln->last_data[0];
+                    return ln->last_data[j == 0 ? 0 : j - 1];
                 }
             }
             i = key_linear_search(ln->key, ln->entries, key);

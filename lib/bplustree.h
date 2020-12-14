@@ -9,7 +9,7 @@
 #define BPLUS_MAX_ORDER     32
 #define BPLUS_MAX_ENTRIES   32
 #define BPLUS_MAX_LEVEL     10
-#define CACHE_NUM           8
+#define CACHE_NUM           4
 
 typedef int key_t;
 
