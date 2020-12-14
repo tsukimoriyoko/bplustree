@@ -46,7 +46,8 @@ static key_t key_binary_search(key_t *arr, int len, key_t target)
 
 static key_t key_linear_search(key_t *arr, int len, key_t target)
 {
-    for (int i = 0; i < len; i++) {
+    int i;
+    for (i = 0; i < len; i++) {
         if (target == arr[i]) {
             return i;
         } else if (arr[i] > target) {
@@ -93,6 +94,14 @@ static inline void swap(int *a, int *b) {
     *a = *b;
     *b = t;
 }
+static inline void insert_sort(int *f, int *a, int *b, int id) {
+    while (id > 0 && f[id - 1] < f[id]) {
+        swap(&f[id - 1], &f[id]);
+        swap(&a[id - 1], &a[id]);
+        swap(&b[id - 1], &b[id]);
+        id--;
+    }
+}
 
 static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 {
@@ -106,7 +115,7 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
             if (tree->cache_off) {
                 for (j = 0; j < CACHE_NUM; j++)
                     if (ln->last_key[j] == key) {
-                        tree->r++;
+                        // tree->r++;
                         return ln->last_data[j];
                     }
                 i = key_linear_search(ln->key, ln->entries, key);
@@ -115,22 +124,20 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 
             for (j = 0; j < CACHE_NUM; j++) {
                 if (ln->last_key[j] == key) {
-                    if (j != 0) {
-                        swap(&ln->last_key[j - 1], &ln->last_key[j]);
-                        swap(&ln->last_data[j - 1], &ln->last_data[j]);
-                    }
-                    tree->r++;
-                    return ln->last_data[j == 0 ? 0 : j - 1];
+                    ln->freq[j]++;
+                    insert_sort(ln->freq, ln->last_key, ln->last_data, j);
+                    // tree->r++;
+                    return ln->last_data[j];
                 }
             }
             i = key_linear_search(ln->key, ln->entries, key);
+            ret = ln->data[i];
+            ln->freq[CACHE_NUM - 1] = 1;
             ln->last_key[CACHE_NUM - 1] = key;
-            return ln->last_data[CACHE_NUM - 1] = ln->data[i];
+            ln->last_data[CACHE_NUM - 1] = ret;
+            insert_sort(ln->freq, ln->last_key, ln->last_data, CACHE_NUM - 1);
+            return ret;
 
-#ifdef _FREQUENCY_STATISTIC
-            if (i >= 0)
-                ln->frequency[i]++;
-#endif
         } else {
             struct bplus_non_leaf *nln = (struct bplus_non_leaf *)node;
 
@@ -139,9 +146,7 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 
             i = i >= 0 ? i + 1 : -i - 1;
             node = nln->sub_ptr[i];
-#ifdef _FREQUENCY_STATISTIC
-            nln->frequency[i]++;
-#endif
+
         }
     }
 }

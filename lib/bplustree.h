@@ -9,7 +9,7 @@
 #define BPLUS_MAX_ORDER     32
 #define BPLUS_MAX_ENTRIES   32
 #define BPLUS_MAX_LEVEL     10
-#define CACHE_NUM           4
+#define CACHE_NUM           8
 
 typedef int key_t;
 
@@ -90,9 +90,6 @@ struct bplus_non_leaf {
         int key[BPLUS_MAX_ORDER - 1];
         struct bplus_node *sub_ptr[BPLUS_MAX_ORDER];
 
-#ifdef _FREQUENCY_STATISTIC
-        int frequency[BPLUS_MAX_ORDER - 1];
-#endif
 };
 
 struct bplus_leaf {
@@ -102,19 +99,17 @@ struct bplus_leaf {
         struct list_head link;
         int entries;
         int last_key[CACHE_NUM], last_data[CACHE_NUM];
+        int freq[CACHE_NUM];
         int key[BPLUS_MAX_ENTRIES];
         int data[BPLUS_MAX_ENTRIES];
 
-#ifdef _FREQUENCY_STATISTIC
-        int frequency[BPLUS_MAX_ENTRIES];
-#endif
 };
 
 struct bplus_tree {
         int order;
         int entries;
         int level;
-        int r;       // 'cache' hit count
+        // int r;       // 'cache' hit count
         char cache_off;
         struct bplus_node *root;
         struct list_head list[BPLUS_MAX_LEVEL];
