@@ -154,7 +154,7 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
             flag = 0;
             if (nln->key[nln->children - 1] != 0 && key > nln->key[nln->children - 1]) {
                 node = nln->sub_ptr[nln->children];
-                // tree->r++;
+                tree->r++;
                 continue;
             }
 
@@ -164,7 +164,7 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
                     if (nln->key[k - 1] < key && key <= nln->key[k]) {
                         node = nln->sub_ptr[k];
                         flag = 1;
-                        // tree->r++;
+                        tree->r++;
                         break;
                     }
                 }
@@ -182,7 +182,7 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
                         flag = 1;
                         nln->freq[j]++;
                         insert_sort2(nln->freq, nln->last_id, j);
-                        // tree->r++;
+                        tree->r++;
                         break;
                     }
                 }

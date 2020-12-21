@@ -109,7 +109,7 @@ struct bplus_tree {
         int order;
         int entries;
         int level;
-        // int r;       // 'cache' hit count
+        int r;       // 'cache' hit count
         char cache_change_off;
         struct bplus_node *root;
         struct list_head list[BPLUS_MAX_LEVEL];

@@ -83,7 +83,7 @@ int main() {
     timeuse = 1000000 * (endtime.tv_sec - starttime.tv_sec) + endtime.tv_usec - starttime.tv_usec;
     printf("%lf ms\n", timeuse / 1000);
 
-    // printf("hit count: %d\n", tree->r);
+    printf("hit count: %d\n", tree->r);
 
     tree->r = 0;
     tree->cache_change_off = 1;
@@ -95,7 +95,7 @@ int main() {
     timeuse = 1000000 * (endtime.tv_sec - starttime.tv_sec) + endtime.tv_usec - starttime.tv_usec;
     printf("%lf ms\n", timeuse / 1000);
 
-    // printf("hit count: %d\n", tree->r);
+    printf("hit count: %d\n", tree->r);
 
 
     return 0;
