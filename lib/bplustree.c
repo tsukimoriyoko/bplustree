@@ -151,52 +151,59 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
         } else {
             struct bplus_non_leaf *nln = (struct bplus_non_leaf *)node;
 
-            flag = 0;
-            if (nln->key[nln->children - 1] != 0 && key > nln->key[nln->children - 1]) {
-                node = nln->sub_ptr[nln->children];
-                tree->r++;
-                continue;
-            }
-
-            if (tree->cache_change_off) {
-                for (j = 0; j < CACHE_NUM; j++) {
-                    k = nln->last_id[j];
-                    if (nln->key[k - 1] < key && key <= nln->key[k]) {
-                        node = nln->sub_ptr[k];
-                        flag = 1;
-                        tree->r++;
-                        break;
-                    }
-                }
-                if (flag) {
+            if (is_leaf(nln->sub_ptr[0])) {
+                flag = 0;
+                if (nln->key[nln->children - 1] != 0 && key > nln->key[nln->children - 1]) {
+                    node = nln->sub_ptr[nln->children];
+                    // tree->r++;
                     continue;
                 }
+                if (tree->cache_change_off) {
+                    for (j = 0; j < CACHE_NUM; j++) {
+                        k = nln->last_id[j];
+                        if (nln->key[k - 1] < key && key <= nln->key[k]) {
+                            node = nln->sub_ptr[k];
+                            flag = 1;
+                            // tree->r++;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        continue;
+                    }
+                    // i = key_binary_search(nln->key, nln->children - 1, key);
+                    i = key_linear_search(nln->key, nln->children - 1, key);
+                    i = i >= 0 ? i + 1 : -i - 1;
+                    node = nln->sub_ptr[i];
+                } else {
+                    for (j = 0; j < CACHE_NUM; j++) {
+                        k = nln->last_id[j];
+                        if (nln->key[k - 1] <= key && key < nln->key[k]) {
+                            node = nln->sub_ptr[k];
+                            flag = 1;
+                            nln->freq[j]++;
+                            insert_sort2(nln->freq, nln->last_id, j);
+                            // tree->r++;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        continue;
+                    }
+                    // i = key_binary_search(nln->key, nln->children - 1, key);
+                    i = key_linear_search(nln->key, nln->children - 1, key);
+                    i = i >= 0 ? i + 1 : -i - 1; 
+                    node = nln->sub_ptr[i];
+
+                    nln->freq[CACHE_NUM - 1] = 1;
+                    nln->last_id[CACHE_NUM - 1] = i;
+                    insert_sort2(nln->freq, nln->last_id, CACHE_NUM - 1);
+                }
+            } else {
+                // i = key_binary_search(nln->key, nln->children - 1, key);
                 i = key_linear_search(nln->key, nln->children - 1, key);
                 i = i >= 0 ? i + 1 : -i - 1;
                 node = nln->sub_ptr[i];
-            } else {
-                for (j = 0; j < CACHE_NUM; j++) {
-                    k = nln->last_id[j];
-                    if (nln->key[k - 1] <= key && key < nln->key[k]) {
-                        node = nln->sub_ptr[k];
-                        flag = 1;
-                        nln->freq[j]++;
-                        insert_sort2(nln->freq, nln->last_id, j);
-                        tree->r++;
-                        break;
-                    }
-                }
-                if (flag) {
-                    continue;
-                }
-                // i = key_binary_search(nln->key, nln->children - 1, key);
-                i = key_linear_search(nln->key, nln->children - 1, key);
-                i = i >= 0 ? i + 1 : -i - 1; 
-                node = nln->sub_ptr[i];
-
-                nln->freq[CACHE_NUM - 1] = 1;
-                nln->last_id[CACHE_NUM - 1] = i;
-                insert_sort2(nln->freq, nln->last_id, CACHE_NUM - 1);
             }
         }
     }

@@ -9,7 +9,7 @@
 #define BPLUS_MAX_ORDER     32
 #define BPLUS_MAX_ENTRIES   32
 #define BPLUS_MAX_LEVEL     10
-#define CACHE_NUM           4
+#define CACHE_NUM           8
 
 typedef int key_t;
 
@@ -109,7 +109,7 @@ struct bplus_tree {
         int order;
         int entries;
         int level;
-        int r;       // 'cache' hit count
+        // int r;       // 'cache' hit count
         char cache_change_off;
         struct bplus_node *root;
         struct list_head list[BPLUS_MAX_LEVEL];
