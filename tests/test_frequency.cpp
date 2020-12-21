@@ -85,8 +85,8 @@ int main() {
 
     // printf("hit count: %d\n", tree->r);
 
-    // tree->r = 0;
-    tree->cache_off = 1;
+    tree->r = 0;
+    tree->cache_change_off = 1;
     gettimeofday(&starttime, NULL);
     for (int i = 0; i < FILE_SIZE; i++) {
         bplus_tree_get(tree, run[i]);

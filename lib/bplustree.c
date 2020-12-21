@@ -103,16 +103,24 @@ static inline void insert_sort(int *f, int *a, int *b, int id) {
     }
 }
 
+static inline void insert_sort2(int *f, int *a, int id) {
+    while (id > 0 && f[id - 1] < f[id]) {
+        swap(&f[id - 1], &f[id]);
+        swap(&a[id - 1], &a[id]);
+        id--;
+    }
+}
+
 static int bplus_tree_search(struct bplus_tree *tree, key_t key)
 {
     int i, j, k, ret = -1;
+    int flag = 0;
     struct bplus_node *node = tree->root;
     while (node != NULL) {
         if (is_leaf(node)) {
             struct bplus_leaf *ln = (struct bplus_leaf *)node;
-            // i = key_binary_search(ln->key, ln->entries, key);
 
-            if (tree->cache_off) {
+            if (tree->cache_change_off) {
                 for (j = 0; j < CACHE_NUM; j++)
                     if (ln->last_key[j] == key) {
                         // tree->r++;
@@ -130,8 +138,10 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
                     return ln->last_data[j];
                 }
             }
+            // i = key_binary_search(ln->key, ln->entries, key);
             i = key_linear_search(ln->key, ln->entries, key);
             ret = ln->data[i];
+
             ln->freq[CACHE_NUM - 1] = 1;
             ln->last_key[CACHE_NUM - 1] = key;
             ln->last_data[CACHE_NUM - 1] = ret;
@@ -141,12 +151,53 @@ static int bplus_tree_search(struct bplus_tree *tree, key_t key)
         } else {
             struct bplus_non_leaf *nln = (struct bplus_non_leaf *)node;
 
-            // i = key_binary_search(nln->key, nln->children - 1, key);
-            i = key_linear_search(nln->key, nln->children - 1, key);
+            flag = 0;
+            if (nln->key[nln->children - 1] != 0 && key > nln->key[nln->children - 1]) {
+                node = nln->sub_ptr[nln->children];
+                // tree->r++;
+                continue;
+            }
 
-            i = i >= 0 ? i + 1 : -i - 1;
-            node = nln->sub_ptr[i];
+            if (tree->cache_change_off) {
+                for (j = 0; j < CACHE_NUM; j++) {
+                    k = nln->last_id[j];
+                    if (nln->key[k - 1] < key && key <= nln->key[k]) {
+                        node = nln->sub_ptr[k];
+                        flag = 1;
+                        // tree->r++;
+                        break;
+                    }
+                }
+                if (flag) {
+                    continue;
+                }
+                i = key_linear_search(nln->key, nln->children - 1, key);
+                i = i >= 0 ? i + 1 : -i - 1;
+                node = nln->sub_ptr[i];
+            } else {
+                for (j = 0; j < CACHE_NUM; j++) {
+                    k = nln->last_id[j];
+                    if (nln->key[k - 1] <= key && key < nln->key[k]) {
+                        node = nln->sub_ptr[k];
+                        flag = 1;
+                        nln->freq[j]++;
+                        insert_sort2(nln->freq, nln->last_id, j);
+                        // tree->r++;
+                        break;
+                    }
+                }
+                if (flag) {
+                    continue;
+                }
+                // i = key_binary_search(nln->key, nln->children - 1, key);
+                i = key_linear_search(nln->key, nln->children - 1, key);
+                i = i >= 0 ? i + 1 : -i - 1; 
+                node = nln->sub_ptr[i];
 
+                nln->freq[CACHE_NUM - 1] = 1;
+                nln->last_id[CACHE_NUM - 1] = i;
+                insert_sort2(nln->freq, nln->last_id, CACHE_NUM - 1);
+            }
         }
     }
 }
@@ -1137,10 +1188,10 @@ static void key_print(struct bplus_node *node)
     {
         struct bplus_leaf *leaf = (struct bplus_leaf *)node;
         // printf("leaf:");
-        // for (i = 0; i < leaf->entries; i++)
-        // {
-        //     printf(" %d", leaf->key[i]);
-        // }
+        for (i = 0; i < leaf->entries; i++)
+        {
+            printf(" %d", leaf->key[i]);
+        }
 
 #ifdef _FREQUENCY_STATISTIC
         // printf(" freq:");
@@ -1152,10 +1203,10 @@ static void key_print(struct bplus_node *node)
     {
         struct bplus_non_leaf *non_leaf = (struct bplus_non_leaf *)node;
         // printf("node:");
-        // for (i = 0; i < non_leaf->children - 1; i++)
-        // {
-        //     printf(" %d", non_leaf->key[i]);
-        // }
+        for (i = 0; i < non_leaf->children - 1; i++)
+        {
+            printf(" %d", non_leaf->key[i]);
+        }
 
 #ifdef _FREQUENCY_STATISTIC
         // printf(" freq:");
@@ -1202,24 +1253,24 @@ void bplus_tree_dump(struct bplus_tree *tree)
             {
                 int i;
                 printf("%d", level);
-                // for (i = 1; i < level; i++)
-                // {
-                //     if (i == level - 1)
-                //     {
-                //         printf("%-8s", "+-------");
-                //     }
-                //     else
-                //     {
-                //         if (nbl_stack[i - 1].node != NULL)
-                //         {
-                //             printf("%-8s", "|");
-                //         }
-                //         else
-                //         {
-                //             printf("%-8s", " ");
-                //         }
-                //     }
-                // }
+                for (i = 1; i < level; i++)
+                {
+                    if (i == level - 1)
+                    {
+                        printf("%-8s", "+-------");
+                    }
+                    else
+                    {
+                        if (nbl_stack[i - 1].node != NULL)
+                        {
+                            printf("%-8s", "|");
+                        }
+                        else
+                        {
+                            printf("%-8s", " ");
+                        }
+                    }
+                }
                 key_print(node);
             }
 
