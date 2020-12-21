@@ -89,8 +89,7 @@ struct bplus_non_leaf {
         int children;
         int key[BPLUS_MAX_ORDER - 1];
         struct bplus_node *sub_ptr[BPLUS_MAX_ORDER];
-        int freq[CACHE_NUM];
-        int last_id[CACHE_NUM];
+        int last_id;
 };
 
 struct bplus_leaf {
@@ -109,7 +108,7 @@ struct bplus_tree {
         int order;
         int entries;
         int level;
-        int r;       // 'cache' hit count
+        // int r;       // 'cache' hit count
         char cache_change_off;
         struct bplus_node *root;
         struct list_head list[BPLUS_MAX_LEVEL];
